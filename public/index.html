@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>Tarea 5</title>
+</head>
+<body>
+  <h1>Servicio web de listado y almacenado de contactos</h1>
+
+  <!-- Formulario-->>
+  <form id="formAgregarContacto">
+    <input type="text" id="nombre" placeholder="Nombre" required>
+    <input type="text" id="apellido" placeholder="Apellido" required>
+    <input type="tel" id="telefono" placeholder="Teléfono" required>
+    <button type="submit">Agregar</button>
+  </form>
+
+  <!-- Contactos -->
+  <ul id="listaContactos"></ul>
+
+  <script>
+    const form = document.getElementById('formAgregarContacto');
+    const listaContactos = document.getElementById('listaContactos');
+
+    // Obtener y mostrar los contactos
+    fetch('http://localhost:3000/contactos')
+      .then(response => response.json())
+      .then(data => {
+        data.forEach(contacto => {
+          const li = document.createElement('li');
+          li.textContent = `${contacto.nombre} ${contacto.apellido} - ${contacto.telefono}`;
+          listaContactos.appendChild(li);
+        });
+      })
+      .catch(error => console.error('Error obteniendo contactos:', error));
+
+    // Agregar contactos
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const nombre = document.getElementById('nombre').value;
+      const apellido = document.getElementById('apellido').value;
+      const telefono = document.getElementById('telefono').value;
+
+      fetch('http://localhost:3000/nuevo-contacto', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nombre, apellido, telefono }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          const nuevoContacto = document.createElement('li');
+          nuevoContacto.textContent = `${nombre} ${apellido} - ${telefono}`;
+          listaContactos.appendChild(nuevoContacto);
+
+          // Limpiar formulario al añadir contactos
+          form.reset();
+        })
+        .catch(error => console.error('Error al agregar el contacto:', error));
+    });
+  </script>
+</body>
+</html>
